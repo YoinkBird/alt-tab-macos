@@ -1,19 +1,21 @@
-# PR tracking: cancelShortcut key-window fix
-
-**PR**: https://github.com/lwouis/alt-tab-macos/pull/5615
-**Branch**: `fix/cancel-shortcut-key-window`
-**Backup branch (full history, untrimmed)**: `fix/cancel-shorcut-key-window-raw`
-**Status**: open, awaiting maintainer review
-
+---
+title: cancelShortcut key-window fix
+pr: https://github.com/lwouis/alt-tab-macos/pull/5615
+pr_number: 5615
+branch: fix/cancel-shortcut-key-window
+backup_branch: fix/cancel-shorcut-key-window-raw
+status: open
+fixes: [5018, 1835, 44]
+description_synced: false
+followup_comment_posted: false
 ---
 
-## Current PR title
+# PR title
 
 `fix: Escape closes overlay reliably (cancelShortcut key-window bug)`
 
-## Proposed PR description (preview — not yet applied)
+# PR description
 
-```markdown
 > [USER STORY — fill in your voice]
 > I noticed that Escape didn't close the AltTab overlay and saw in #5018, #1835, #44 that others have hit this for years. I tried several workarounds (different shortcutStyle, killing competing apps) but none worked, so I dug into the event pipeline.
 
@@ -52,11 +54,9 @@ The `localOnly` filter was required to avoid a regression: without it, the new t
 - [x] Cmd+Tab cycling no longer loops infinitely
 - [x] `bash ai/build.sh` succeeds
 - [ ] Maintainer to verify on additional macOS versions / shortcut configs
-```
 
-## Pending: post as follow-up PR comment
+# Follow-up PR comment
 
-```markdown
 ## Edge-case audit against contributing.md
 
 Reviewed against the "Shortcuts" use-case list in docs/contributing.md:
@@ -73,9 +73,8 @@ Reviewed against the "Shortcuts" use-case list in docs/contributing.md:
 - `focusOnRelease` / `doNothingOnRelease` modes (only `searchOnRelease` tested)
 - International keyboard layouts
 - **Secure Input** — the existing `flagsChanged` tap has a comment noting it survives Secure Input; the new `keyDown` tap may not. Worth verifying.
-```
 
-## Commits on branch
+# Commits on branch
 
 ```
 72fe5198 ci: add setup-dev.sh for one-time dev environment setup
@@ -84,7 +83,7 @@ Reviewed against the "Shortcuts" use-case list in docs/contributing.md:
 8fb70144 ci: add debug-escape.sh for cancelShortcut repro
 ```
 
-## Contrib-guidelines check
+# Contrib-guidelines check
 
 | Guideline | Status |
 |-----------|--------|
@@ -93,8 +92,9 @@ Reviewed against the "Shortcuts" use-case list in docs/contributing.md:
 | Conventional commits | ✅ |
 | Manual QA done | ✅ (with caveats disclosed in follow-up comment) |
 
-## Open questions / decisions
+# Open questions / decisions
 
 - [ ] User to write the one-line story in their own voice
-- [ ] Apply description edit + post follow-up comment
+- [ ] Apply description (set `description_synced: true` after `gh pr edit`)
+- [ ] Post follow-up comment (set `followup_comment_posted: true` after)
 - [ ] Consider testing the "Not verified" edge cases before maintainer review
