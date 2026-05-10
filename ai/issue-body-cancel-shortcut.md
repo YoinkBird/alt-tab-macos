@@ -4,7 +4,7 @@ Pressing Escape (or hold-modifier+Escape) does not close the AltTab overlay in s
 
 The closed tickets converged on "macOS reserves the shortcut, disable Game Overlay or rebind." On a clean machine with Game Overlay disabled and no third-party event-stealers running, the bug still occurs — pointing to a different root cause: AltTab's `cancelShortcut` is `.local` scope (`NSEvent.addLocalMonitorForEvents`), which only fires when `TilesPanel` is the key window. `TilesPanel` is a `.nonactivatingPanel`, and macOS can revoke its key-window status before Escape is pressed, silently dropping the event.
 
-I have a fix in PR #5615 that adds a `CGEventTap` to intercept the event before it's dropped, and would appreciate review.
+I have a proposed fix in PR #5615 that adds a `CGEventTap` to intercept the event before it's dropped, and would appreciate review.
 
 **Steps to reproduce the bug**
 
@@ -43,7 +43,7 @@ What I tested:
 - ✅ Tested all three `shortcutStyle`s (`focusOnRelease` / `doNothingOnRelease` / `searchOnRelease`)
 - ✅ Confirmed via debug log: `keys:⌘c` arrives at `handleKeyboardEvent`, `keys:⌘<esc>` never does — the event is dropped before AltTab's local monitor sees it
 
-**Root cause and fix**
+**Root cause and proposed fix**
 
 Full investigation: [`ai/bug-escape-cancel-shortcut.md`](https://github.com/lwouis/alt-tab-macos/pull/5615/files) (added in PR #5615 — link points to all changed files; scroll to that doc).
 
