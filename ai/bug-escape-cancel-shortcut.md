@@ -88,6 +88,28 @@ All three linked tickets are **CLOSED** but the underlying problem still reprodu
 | [#1835](https://github.com/lwouis/alt-tab-macos/issues/1835) | CLOSED | 17 | 2026-01-06 | Cannot use [esc] key to "cancel and hide" with Hyper modifiers |
 | [#44](https://github.com/lwouis/alt-tab-macos/issues/44)     | CLOSED | 3  | 2019-10-25 | Close on Esc (original feature request) |
 
+### How comments were surveyed
+
+Cache the issue JSON locally so re-running, grepping, or feeding to an agent
+costs zero network. Add `ai/.cache/` to `.gitignore`.
+
+```bash
+CACHE_DIR="ai/.cache/gh-issues"
+mkdir -p "$CACHE_DIR"
+
+for n in 5018 1835 44; do
+  cache="$CACHE_DIR/$n.json"
+  [[ -f "$cache" ]] || gh issue view "$n" \
+    --repo lwouis/alt-tab-macos --comments --json comments > "$cache"
+
+  echo "=== #$n ==="
+  jq -r '.comments[] | "\(.author.login) | \(.url) | \(.body | gsub("\n"; " ") | .[0:120])"' "$cache"
+done
+```
+
+Refresh on demand with `rm -rf ai/.cache/gh-issues`. Used to source the
+comment-level deep-links cited below.
+
 ### Most common fixes / workarounds suggested in those tickets
 
 1. **Disable Game Overlay** (macOS 26 Tahoe) — System Settings → Keyboard → Keyboard Shortcuts → Mission Control → uncheck "Game Overlay". Most-upvoted fix in [#5018](https://github.com/lwouis/alt-tab-macos/issues/5018) / [#1835](https://github.com/lwouis/alt-tab-macos/issues/1835). Tried — doesn't resolve our bug, but confirmed it's the standard suggestion.
