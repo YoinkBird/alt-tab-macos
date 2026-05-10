@@ -6,84 +6,45 @@ branch: fix/cancel-shortcut-key-window
 backup_branch: fix/cancel-shorcut-key-window-raw
 status: open
 fixes: [5018, 1835, 44]
-description_synced: false
-followup_comment_posted: false
 companion_issue: https://github.com/lwouis/alt-tab-macos/issues/5616
 companion_issue_number: 5616
 companion_issue_title: "Escape doesn't close overlay when hold shortcut is Cmd (different root cause than #5018/#1835; proposed fix in #5615)"
+description_synced: false
+body_file: ai/pr-cancel-shortcut-key-window.body.md
 ---
+
+# Tracker — cancelShortcut key-window fix
+
+PR body is in [`pr-cancel-shortcut-key-window.body.md`](pr-cancel-shortcut-key-window.body.md). Edit there, then sync:
+
+```bash
+gh pr edit 5615 --repo lwouis/alt-tab-macos \
+  --body-file ai/pr-cancel-shortcut-key-window.body.md
+# then flip description_synced: true in this file's frontmatter
+```
 
 # PR title
 
 `fix: Escape closes overlay reliably (cancelShortcut key-window bug)`
 
-# PR description
+Update with:
+```bash
+gh pr edit 5615 --repo lwouis/alt-tab-macos \
+  --title "fix: Escape closes overlay reliably (cancelShortcut key-window bug)"
+```
 
-## Summary
+# Companion issue
 
-Closes #5616. Related: #5018, #1835, #44 (closed but underlying problem still reproduces).
-
-Pressing Escape (or hold-modifier+Escape) does not close the AltTab overlay in some conditions.
-
-**Contributor Journey**:
-I noticed that Escape didn't close the AltTab overlay and tried several workarounds and troubleshooting steps as outlined in #5018, #1835, #44.
-
-I love AltTab and I figured I would see if I could help out by using Claude Code.
-
-
-_Investigated and authored with the help of an agentic test harness (Claude Code) — repro scripts, debug log analysis, and the patch itself were iterated through automated tooling. All findings verified manually on real hardware._
-
-## Root cause
-
-`cancelShortcut` is `.local` scope, registered via `NSEvent.addLocalMonitorForEvents`, which only fires when `TilesPanel` is the key window. `TilesPanel` is a `.nonactivatingPanel` — macOS can revoke its key status before Escape is pressed, silently dropping the event. Confirmed via debug log: Cmd+Escape never reached `handleKeyboardEvent`.
-
-The existing `flagsChanged` `CGEventTap` is `.listenOnly` and modifier-only, so it can't intercept Escape.
-
-## Fix
-
-Adds a second `CGEventTap` (`localShortcutEventTap`) at `.headInsertEventTap` on `kCGSessionEventTap`, with `.defaultTap` (can absorb), subscribed to `keyDown`. While `App.appIsBeingUsed`, it calls `handleKeyboardEvent(..., localOnly: true)`, which:
-
-- Skips `scope == .global` shortcuts (already handled by `RegisterEventHotKey` + `KeyRepeatTimer`)
-- Only intercepts `scope == .local` shortcuts (cancelShortcut etc.)
-
-The `localOnly` filter was required to avoid a regression: without it, the new tap double-fired `nextWindowShortcut` alongside the Carbon hotkey handler, causing infinite window cycling on Cmd+Tab.
-
-## Files
-
-- `src/logic/events/KeyboardEvents.swift` — new `addCgEventTapForLocalShortcuts()` and `cgEventKeyDownHandler`
-- `src/logic/events/KeyboardEventsTestable.swift` — `localOnly` parameter on `handleKeyboardEvent` / `triggerMatchingShortcuts`
-- `ai/bug-escape-cancel-shortcut.md` — full investigation notes
-- `ai/debug-escape.sh` — repro helper
-- `ai/setup-dev.sh` — one-time dev environment setup
-
-## Test plan
-
-- [x] Cmd+Tab → release Tab → Escape closes overlay
-- [x] Cmd+Tab cycling no longer loops infinitely
-- [x] `bash ai/build.sh` succeeds
-- [ ] Maintainer to verify on additional macOS versions / shortcut configs
-
-# Follow-up PR comment
-
-## Edge-case audit against contributing.md
-
-Reviewed against the "Shortcuts" use-case list in docs/contributing.md:
-
-**Verified working:**
-- Local shortcuts active when overlay is open, with or without hold key held (the fix's target)
-- `select next window` containing hold-key modifiers (Cmd hold + Cmd+Tab next)
-- Repeat behavior on Cmd+Tab cycling (regression caught and fixed via `localOnly` filter)
-
-**Not verified — flagging for maintainer QA:**
-- Multi-modifier hold key (e.g. `⌥⇧`) — only Cmd was tested
-- Capslock interactions
-- Shortcut sets 1 and 2 isolation
-- `focusOnRelease` / `doNothingOnRelease` modes (only `searchOnRelease` tested)
-- International keyboard layouts
-- **Secure Input** — the existing `flagsChanged` tap has a comment noting it survives Secure Input; the new `keyDown` tap may not. Worth verifying.
+[#5616](https://github.com/lwouis/alt-tab-macos/issues/5616) — filed manually so the maintainer has a current open ticket pointing to this PR (#5018, #1835, #44 are all closed). Issue body lives in [`issue-body-cancel-shortcut.md`](issue-body-cancel-shortcut.md).
 
 # Commits on branch
 
+Live list:
+```bash
+git log upstream/master..HEAD --oneline
+```
+
+Last snapshot (run command above for current state):
 ```
 72fe5198 ci: add setup-dev.sh for one-time dev environment setup
 3fe28db8 fix: intercept local shortcuts via CGEventTap when TilesPanel loses key focus
@@ -91,18 +52,24 @@ Reviewed against the "Shortcuts" use-case list in docs/contributing.md:
 8fb70144 ci: add debug-escape.sh for cancelShortcut repro
 ```
 
+`local:` commits (not for upstream — strip before push):
+```bash
+git log upstream/master..HEAD --oneline | grep '^[a-f0-9]* local:'
+```
+
 # Contrib-guidelines check
 
 | Guideline | Status |
 |-----------|--------|
 | Title conveys the change | ✅ |
-| Mention ticket | ✅ #5018, #1835, #44 |
+| Mention ticket | ✅ #5018, #1835, #44, #5616 |
 | Conventional commits | ✅ |
-| Manual QA done | ✅ (with caveats disclosed in follow-up comment) |
+| Manual QA done | ✅ (caveats in PR body Test plan) |
 
 # Open questions / decisions
 
-- [ ] User to write the one-line story in their own voice
-- [ ] Apply description (set `description_synced: true` after `gh pr edit`)
-- [ ] Post follow-up comment (set `followup_comment_posted: true` after)
-- [ ] Consider testing the "Not verified" edge cases before maintainer review
+- [x] User to write the one-line story (line 28-31 of body file)
+- [x] Companion issue filed (#5616)
+- [ ] Sync PR body — `gh pr edit ...` then flip `description_synced: true`
+- [ ] Decide whether to test "Not verified" edge cases ourselves before maintainer review
+- [ ] Strip `local:` commits before any push of branch to upstream
