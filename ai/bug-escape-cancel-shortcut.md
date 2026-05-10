@@ -1,7 +1,7 @@
 # Bug: Escape / Cmd+Escape does not close the AltTab overlay
 
 **Labels**: bug
-**Related**: #5018, #1835, #44
+**Related**: [#5018](https://github.com/lwouis/alt-tab-macos/issues/5018), [#1835](https://github.com/lwouis/alt-tab-macos/issues/1835), [#44](https://github.com/lwouis/alt-tab-macos/issues/44)
 **Status**: FIXED (branch `alkjdla`)
 
 ---
@@ -84,21 +84,36 @@ All three linked tickets are **CLOSED** but the underlying problem still reprodu
 
 | # | State | Comments | Last activity | Title |
 |---|-------|----------|---------------|-------|
-| 5018 | CLOSED | 11 | 2026-01-19 | Cancel and hide control not working with Escape |
-| 1835 | CLOSED | 17 | 2026-01-06 | Cannot use [esc] key to "cancel and hide" with Hyper modifiers |
-| 44   | CLOSED | 3  | 2019-10-25 | Close on Esc (original feature request) |
+| [#5018](https://github.com/lwouis/alt-tab-macos/issues/5018) | CLOSED | 11 | 2026-01-19 | Cancel and hide control not working with Escape |
+| [#1835](https://github.com/lwouis/alt-tab-macos/issues/1835) | CLOSED | 17 | 2026-01-06 | Cannot use [esc] key to "cancel and hide" with Hyper modifiers |
+| [#44](https://github.com/lwouis/alt-tab-macos/issues/44)     | CLOSED | 3  | 2019-10-25 | Close on Esc (original feature request) |
 
 ### Most common fixes / workarounds suggested in those tickets
 
-1. **Disable Game Overlay** (macOS 26 Tahoe) — System Settings → Keyboard → Keyboard Shortcuts → Mission Control → uncheck "Game Overlay". Most-upvoted fix in #5018 / #1835. Tried — doesn't resolve our bug, but confirmed it's the standard suggestion.
+1. **Disable Game Overlay** (macOS 26 Tahoe) — System Settings → Keyboard → Keyboard Shortcuts → Mission Control → uncheck "Game Overlay". Most-upvoted fix in [#5018](https://github.com/lwouis/alt-tab-macos/issues/5018) / [#1835](https://github.com/lwouis/alt-tab-macos/issues/1835). Tried — doesn't resolve our bug, but confirmed it's the standard suggestion.
 2. **Conflicts warning** added in v7.33+ for hard-reserved combos (`⌘⌥⎋`, `⌘⌥⇧⎋`, `⌘⌥⇧⌃⎋`). Doesn't apply to Cmd+Escape (which can be disabled via Game Overlay toggle).
-3. **`ShortcutDetective`** — third-party tool to identify which process is grabbing a shortcut. One reporter (@rennsax) used it to identify `universalaccessd` hijacking `⌘⎋`.
+3. **[ShortcutDetective](https://www.irradiatedsoftware.com/labs/)** — third-party diagnostic tool. Vendor (Irradiated Software) explicitly classes it as "Labs": _"will lack the polish of a finished product and is meant to be more of proof-of-concept"_. Stuck at v1.0, requires Mac OS X 10.6+, no version updates, "not all hotkeys can be detected" disclaimer. Effectively unsupported. [@rennsax](https://github.com/rennsax) used it to identify `universalaccessd` hijacking `⌘⎋`.
+
+   **Install** (modern macOS will fight you — no notarization, 2009-era app):
+
+   ```bash
+   cd ~/Downloads
+   curl -LO 'https://www.irradiatedsoftware.com/downloads/?file=ShortcutDetective.zip' -o ShortcutDetective.zip
+   unzip ShortcutDetective.zip
+   mv ShortcutDetective.app /Applications/
+   xattr -dr com.apple.quarantine /Applications/ShortcutDetective.app
+   open /Applications/ShortcutDetective.app
+   ```
+
+   Grant Accessibility permission via System Settings → Privacy & Security → Accessibility.
+
+   **Expected finding when run against Cmd+Escape (with our repro)**: the tool either (a) reports the event was not detected, or (b) reports it as unbound. Either result reinforces the root cause — the event is dropped at a layer below Accessibility-level event taps, which is exactly why AltTab's existing local monitor never sees it and why a `CGEventTap` at `.headInsertEventTap` is needed.
 4. **Kill `universalaccessd`** — releases `⌘⎋` temporarily; macOS relaunches it.
 5. **Reboot** — temporarily releases the shortcut from MPV (which Tahoe detects as a "game" → hijacks `⌘⎋`).
 6. **`defaults write com.lwouis.alt-tab-macos.plist`** — bypass the Settings UI to set shortcuts that the conflicts warning blocks.
 7. **Roll back to v7.32** — pre-conflicts-warning, lets the user re-enable Cmd+Escape (workaround, not a fix).
 
-### Reserved-by-macOS Escape combos (per @lwouis in #1835)
+### Reserved-by-macOS Escape combos (per [@lwouis](https://github.com/lwouis) in [#1835](https://github.com/lwouis/alt-tab-macos/issues/1835))
 
 ```swift
 // Introduced in macOS 26 (Tahoe). Toggleable in System Settings.
@@ -122,6 +137,6 @@ Game Center is disabled.
 ## Your environment
 
 * AltTab version: 10.12.0
-* macOS version: 15.x (Sequoia)
+* macOS version: 26.4.1 (Tahoe)
 * Hold shortcut: Cmd
 * Reproduces on: multiple machines, no competing apps needed
