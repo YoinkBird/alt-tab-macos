@@ -45,7 +45,7 @@ What I tested:
 
 **Root cause and fix**
 
-Full investigation: [`ai/bug-escape-cancel-shortcut.md`](https://github.com/lwouis/alt-tab-macos/blob/master/ai/bug-escape-cancel-shortcut.md) (added in PR #5615).
+Full investigation: [`ai/bug-escape-cancel-shortcut.md`](https://github.com/lwouis/alt-tab-macos/pull/5615/files) (added in PR #5615 — link points to all changed files; scroll to that doc).
 
 Short version:
 - `cancelShortcut` is `.local` scope, only fires while `TilesPanel.isKeyWindow`
