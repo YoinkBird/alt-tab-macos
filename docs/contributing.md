@@ -137,6 +137,7 @@ In an attempt to not have too many regressions, this documents will list OS inte
 * [Secure Input](https://github.com/lwouis/alt-tab-macos/issues/157#issuecomment-659170293) can prevent AltTab from listening to the keyboard
 * Some shortcuts should only work when AltTab is open
   * These shortcuts should active whether the hold shortcut is held or not
+  * Specific regression test: with hold shortcut = `Cmd` and `shortcutStyle` = `searchOnRelease`, do `Cmd`+`Tab` → release `Tab` → `Escape` — the overlay must close (regression caught in [#5616](https://github.com/lwouis/alt-tab-macos/issues/5616))
 * Shortcuts should work with capslock active or inactive
 * Shortcuts should repeat if kept pressed
   * Repeat rate and initial delay should match the values set in `System Preference` > `Keyboard`
