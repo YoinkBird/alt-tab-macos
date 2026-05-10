@@ -9,7 +9,7 @@ fixes: [5018, 1835, 44]
 companion_issue: https://github.com/lwouis/alt-tab-macos/issues/5616
 companion_issue_number: 5616
 companion_issue_title: "Escape doesn't close overlay when hold shortcut is Cmd (different root cause than #5018/#1835; proposed fix in #5615)"
-description_synced: false
+description_synced: true
 body_file: ai/pr-cancel-shortcut-key-window.body.md
 ---
 
