@@ -11,9 +11,14 @@
 
 `fix: Escape closes overlay reliably (cancelShortcut key-window bug)`
 
-## Current PR description (live)
+## Proposed PR description (preview — not yet applied)
 
 ```markdown
+> [USER STORY — fill in your voice]
+> I noticed that Escape didn't close the AltTab overlay and saw in #5018, #1835, #44 that others have hit this for years. I tried several workarounds (different shortcutStyle, killing competing apps) but none worked, so I dug into the event pipeline.
+
+_Investigated and authored with the help of an agentic test harness (Claude Code) — repro scripts, debug log analysis, and the patch itself were iterated through automated tooling. All findings verified manually on real hardware._
+
 ## Summary
 
 Fixes #5018, #1835, #44 — pressing Escape (or hold-modifier+Escape) does not close the AltTab overlay in some conditions.
@@ -49,18 +54,7 @@ The `localOnly` filter was required to avoid a regression: without it, the new t
 - [ ] Maintainer to verify on additional macOS versions / shortcut configs
 ```
 
-## Pending edits to apply
-
-### 1. Add to top of PR description
-
-```
-> [user story — to fill in personally]
-> I noticed that Escape didn't close the AltTab overlay and saw in #5018, #1835, #44 that others have hit this for years. I tried several workarounds (different shortcutStyle, killing competing apps) but none worked, so I dug into the event pipeline.
-
-_Investigated and authored with the help of an agentic test harness (Claude Code) — repro scripts, debug log analysis, and the patch itself were iterated through automated tooling. All findings verified manually on real hardware._
-```
-
-### 2. Post as follow-up PR comment
+## Pending: post as follow-up PR comment
 
 ```markdown
 ## Edge-case audit against contributing.md
