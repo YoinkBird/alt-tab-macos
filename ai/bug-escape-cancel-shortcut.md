@@ -150,12 +150,6 @@ reservedForUnknownReason = ⌘⌥⇧⌃⎋
 
 The existing tickets converged on "macOS hijacks Escape, the user must reconfigure". Our debug log showed the event genuinely never arrives at AltTab's handler — but the cause is `TilesPanel` losing key-window status, not a kernel-level reservation. A `CGEventTap` at `.headInsertEventTap` intercepts the event before whatever drops it, restoring the cancel path without requiring users to disable Game Overlay or remap their shortcut.
 
-## Separate bug (to file later)
-
-When AltTab shows a "conflicting shortcut" warning for GameOverlay (Cmd+Escape), it opens
-System Settings → Keyboard → Modifier Keys — the wrong pane. Also a false positive since
-Game Center is disabled.
-
 ## Your environment
 
 * AltTab version: 10.12.0
