@@ -16,14 +16,17 @@ followup_comment_posted: false
 
 # PR description
 
-> [USER STORY — fill in your voice]
-> I noticed that Escape didn't close the AltTab overlay and saw in #5018, #1835, #44 that others have hit this for years. I tried several workarounds (different shortcutStyle, killing competing apps) but none worked, so I dug into the event pipeline.
-
-_Investigated and authored with the help of an agentic test harness (Claude Code) — repro scripts, debug log analysis, and the patch itself were iterated through automated tooling. All findings verified manually on real hardware._
-
 ## Summary
 
 Fixes #5018, #1835, #44 — pressing Escape (or hold-modifier+Escape) does not close the AltTab overlay in some conditions.
+
+**Contributor Journey**:
+I noticed that Escape didn't close the AltTab overlay and tried several workarounds and troubleshooting steps as outlined in #5018, #1835, #44.
+
+I love AltTab and I figured I would see if I could help out by using Claude Caude.
+
+
+_Investigated and authored with the help of an agentic test harness (Claude Code) — repro scripts, debug log analysis, and the patch itself were iterated through automated tooling. All findings verified manually on real hardware._
 
 ## Root cause
 
