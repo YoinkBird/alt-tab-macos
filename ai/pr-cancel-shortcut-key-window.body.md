@@ -36,13 +36,16 @@ The `localOnly` filter was required to avoid a regression: without it, the new t
 
 ## Test plan
 
+Mapped to the "Shortcuts" use-case list in [`docs/contributing.md`](docs/contributing.md).
+
 **Verified working:**
-- [x] Cmd+Tab → release Tab → Escape closes overlay
-- [x] Cmd+Tab cycling no longer loops infinitely
-- [x] `bash ai/build.sh` succeeds
-- [x] Local shortcuts active when overlay is open, with or without hold key held (the fix's target)
+- [x] **`cancelShortcut` (Escape) closes the overlay reliably** — the fix's target; previously failed when `TilesPanel` lost key-window status
+- [x] _"Some shortcuts should only work when AltTab is open"_ — local-scope shortcuts now active whenever `appIsBeingUsed`, regardless of `TilesPanel.isKeyWindow`
+- [x] _"...active whether the hold shortcut is held or not"_ — verified for both hold-still-held and hold-released paths
+- [x] _"Shortcuts should have priority over system shortcuts such as `cmd+tab`"_ — the new tap installs at `.headInsertEventTap`, ahead of most other taps, improving priority for local-scope shortcuts
 - [x] `select next window` containing hold-key modifiers (Cmd hold + Cmd+Tab next)
-- [x] Repeat behavior on Cmd+Tab cycling (regression caught and fixed via `localOnly` filter)
+- [x] Shortcuts repeat if kept pressed (regression caught and fixed via `localOnly` filter — without it, Cmd+Tab cycled infinitely from double-firing)
+- [x] `bash ai/build.sh` succeeds
 
 **Not verified — flagging for maintainer QA:**
 - [ ] Multi-modifier hold key (e.g. `⌥⇧`) — only Cmd was tested
