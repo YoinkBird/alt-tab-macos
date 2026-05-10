@@ -25,10 +25,21 @@ With the default `Option` hold shortcut, `Option`+`Escape` works correctly on th
 
 **Already tried (recommendations from #5018, #1835)**
 
+Related bug reports / comments reviewed:
+- [#5018 — @mauricekoreman: Game Overlay toggle fix](https://github.com/lwouis/alt-tab-macos/issues/5018#issuecomment-3542231460)
+- [#5018 — @cemiu: Game Overlay also at fault, asks about warnings on alt→cmd swap](https://github.com/lwouis/alt-tab-macos/issues/5018#issuecomment-3582380719)
+- [#5018 — @lwouis: 2 Tahoe Game Overlay bugs, can't reproduce ⌘⎋ even with Game Overlay unchecked](https://github.com/lwouis/alt-tab-macos/issues/5018#issuecomment-3585002699)
+- [#5018 — @rennsax: `universalaccessd` hijacking ⌘⎋, identified via ShortcutDetective](https://github.com/lwouis/alt-tab-macos/issues/5018#issuecomment-3768214834)
+- [#1835 — @NachiGithub: Tahoe Mission Control conflict, fixed by unchecking](https://github.com/lwouis/alt-tab-macos/issues/1835#issuecomment-3303454097)
+- [#1835 — @lwouis: AltTab never receives keyDown for Escape with 4 modifiers](https://github.com/lwouis/alt-tab-macos/issues/1835#issuecomment-3516074035)
+- [#1835 — @lwouis: list of OS-reserved Escape combos](https://github.com/lwouis/alt-tab-macos/issues/1835#issuecomment-3710178750)
+- [#1835 — @vigilancer: v7.33 conflicts-warning blocks legitimate Hyper+F16+Esc workflow](https://github.com/lwouis/alt-tab-macos/issues/1835#issuecomment-3707074617)
+
+What I tested:
 - ✅ Disabled Game Overlay (System Settings → Keyboard → Keyboard Shortcuts → Mission Control)
 - ✅ Killed `Contexts.app`, `1Password`. (Do not have `Witch`, `Overflow`, `HiDock`)
 - ✅ Reproduced on a second machine with no password manager and no Contexts
-- ✅ Tried [ShortcutDetective](https://www.irradiatedsoftware.com/labs/) (the diagnostic tool recommended in [#5018](https://github.com/lwouis/alt-tab-macos/issues/5018)) — got a deprecation/compatibility warning on launch. Already uninstalled so no specific output to share. The tool is vendor-classified as "Labs" / proof-of-concept, stuck at v1.0, no updates since the macOS 10.6 era — effectively unsupported on current macOS.
+- ✅ Tried [ShortcutDetective](https://www.irradiatedsoftware.com/labs/) (the diagnostic tool recommended in [#5018](https://github.com/lwouis/alt-tab-macos/issues/5018#issuecomment-3768214834)) — got a deprecation/compatibility warning on launch. Already uninstalled so no specific output to share. The tool is vendor-classified as "Labs" / proof-of-concept, stuck at v1.0, no updates since the macOS 10.6 era — effectively unsupported on current macOS.
 - ✅ Tested all three `shortcutStyle`s (`focusOnRelease` / `doNothingOnRelease` / `searchOnRelease`)
 - ✅ Confirmed via debug log: `keys:⌘c` arrives at `handleKeyboardEvent`, `keys:⌘<esc>` never does — the event is dropped before AltTab's local monitor sees it
 
