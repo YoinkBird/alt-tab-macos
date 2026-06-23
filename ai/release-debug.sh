@@ -56,4 +56,4 @@ gh run watch "$run_id" --exit-status
 
 # --- 4. download ---
 gh run download "$run_id" --name "$ARTIFACT" --dir "$out"
-echo "Done. $ARTIFACT.zip in $out/  (unzip twice -> AltTabDebug.app -> /Applications -> 'Open Anyway')"
+echo "Done. AltTabDebug-<version>.zip in $out/  (unzip twice -> AltTabDebug.app -> /Applications -> 'Open Anyway')"

@@ -15,4 +15,5 @@ codesign.crt
 codesign.key
 codesign.p12
 /.claude/worktrees/
-AltTabDebug.zip
+AltTabDebug-*.zip
+Info.plist.orig

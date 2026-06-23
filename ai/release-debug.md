@@ -27,10 +27,15 @@ for flags (`--branch`, `--out`, `--dry-run`).
 ## Install on another machine
 
 ```
-$ unzip AltTabDebug.zip          # GitHub wrapper -> AltTabDebug.zip
-$ unzip AltTabDebug.zip          # -> AltTabDebug.app
+$ unzip AltTabDebug.zip               # GitHub wrapper -> AltTabDebug-<version>.zip
+$ unzip AltTabDebug-*.zip             # -> AltTabDebug.app
 $ mv AltTabDebug.app /Applications/
 ```
+
+The `<version>` comes from `git describe --tags` (e.g. `v10.12.0-27-geac17c17`):
+`ai/build-debug-ci.sh` stamps it into the app's `CFBundleShortVersionString` and the
+zip filename, so each build is self-identifying. The GitHub artifact name stays the
+stable `AltTabDebug` so `gh run download --name AltTabDebug` keeps working.
 
 First launch is blocked once because the build is ad-hoc signed (not notarized):
 open **System Settings > Privacy & Security**, then click **Open Anyway**. Then
@@ -43,6 +48,9 @@ grant **Accessibility** and **Screen Recording**. It runs alongside a brew-insta
   `ai/build-debug-ci.sh` with `pkgbuild`.
 - **Zero-friction installs** (no "Open Anyway"): sign with your own Apple Developer ID
   and notarize, reusing the release pipeline's notarization step.
+- **Human-facing version numbers**: tag your own fork releases (`git tag v10.13.0`);
+  `git describe` then builds off your tags instead of `v10.12.0-<n>-g<sha>`. Upstream
+  has since moved to 11.x; you forked at the end of 10.x.
 
 ## Files
 
