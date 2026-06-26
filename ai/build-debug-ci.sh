@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Build AltTabDebug.app (ad-hoc signed, no keychain identity needed) and zip it
-# for upload as a CI artifact. Invoked by .github/workflows/debug_build.yml.
+# Build AltTabDebug.app (ad-hoc signed, no keychain identity needed) and package it
+# for upload as CI artifacts: a .zip (raw .app) and a double-click .pkg installer.
+# Invoked by .github/workflows/debug_build.yml.
 set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
@@ -21,8 +22,28 @@ ADHOC_SIGN=1 bash "$REPO_ROOT/ai/build.sh"
 APP="$REPO_ROOT/DerivedData/Build/Products/Debug/AltTabDebug.app"
 [[ -d "$APP" ]] || { echo "ERROR: $APP not found after build" >&2; exit 1; }
 
-# ditto preserves symlinks/permissions inside the bundle (a plain zip corrupts a .app)
+WORK="$(mktemp -d)"
+trap 'mv -f "$INFO.orig" "$INFO"; rm -rf "$WORK"' EXIT
+
+# --- .zip (raw .app); ditto preserves symlinks/permissions inside the bundle ---
 ZIP="$REPO_ROOT/AltTabDebug-$VERSION.zip"
 rm -f "$ZIP"
 ditto -c -k --sequesterRsrc --keepParent "$APP" "$ZIP"
 echo "Packaged: $ZIP"
+
+# --- .pkg (double-click installer that copies the app to /Applications) ---
+STAGE="$WORK/root"; mkdir -p "$STAGE"
+ditto "$APP" "$STAGE/AltTabDebug.app"
+# BundleIsRelocatable=NO forces install to /Applications rather than over an existing copy elsewhere
+pkgbuild --analyze --root "$STAGE" "$WORK/component.plist"
+plutil -replace 0.BundleIsRelocatable -bool NO "$WORK/component.plist"
+PKG="$REPO_ROOT/AltTabDebug-$VERSION.pkg"
+rm -f "$PKG"
+pkgbuild \
+  --root "$STAGE" \
+  --component-plist "$WORK/component.plist" \
+  --install-location /Applications \
+  --identifier com.lwouis.alt-tab-macos.debug \
+  --version "$VERSION" \
+  "$PKG"
+echo "Packaged: $PKG"
