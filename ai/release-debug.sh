@@ -24,7 +24,9 @@ while [[ $# -gt 0 ]]; do case "$1" in
   -h|--help) sed -n '2,15p' "$0"; exit 0 ;;
   *) echo "ERROR: unknown arg: $1" >&2; exit 2 ;;
 esac; done
-run() { echo "+ $*"; [[ "$dry" == 1 ]] || "$@"; }
+# Both echo the command (to stderr, so captured stdout stays clean) before running it.
+run() { echo "+ $*" >&2; [[ "$dry" == 1 ]] || "$@"; }   # for actions
+cap() { echo "+ $*" >&2; "$@"; }                          # for $(...) capture
 
 # --- preconditions (fail loud) ---
 command -v gh >/dev/null || { echo "ERROR: gh not installed (brew install gh)" >&2; exit 1; }
@@ -33,14 +35,14 @@ gh auth status >/dev/null 2>&1 || { echo "ERROR: gh not authenticated (gh auth l
 git diff --quiet && git diff --cached --quiet || { echo "ERROR: dirty tree; commit/stash first" >&2; exit 1; }
 [[ -n "$branch" ]] || branch="$(git symbolic-ref --short HEAD)"
 git show-ref --verify --quiet "refs/heads/$branch" || { echo "ERROR: no such branch: $branch" >&2; exit 1; }
-repo="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
+repo="$(cap gh repo view --json nameWithOwner -q .nameWithOwner)"
 echo "Repo: $repo   Branch: $branch   Artifact -> $out"
 
 # --- 1. push (you invoke this script; this is your push) ---
 run git push origin "$branch"
 
 # --- 2. assert default branch (workflow_dispatch needs the file there) ---
-current="$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)"
+current="$(cap gh repo view --json defaultBranchRef -q .defaultBranchRef.name)"
 if [[ "$current" != "$branch" ]]; then
   [[ "$set_default" == 1 ]] || { echo "ERROR: default branch is '$current', not '$branch'." >&2
     echo "       re-run with --set-default, or: gh repo edit $repo --default-branch $branch" >&2; exit 1; }
@@ -51,9 +53,9 @@ fi
 run gh workflow run "$WORKFLOW" --ref "$branch"
 [[ "$dry" == 1 ]] && { echo "(dry-run) would wait + download '$ARTIFACT'"; exit 0; }
 echo "Waiting for run to register..."; sleep 5
-run_id="$(gh run list --workflow="$WORKFLOW" --branch "$branch" --limit 1 --json databaseId -q '.[0].databaseId')"
-gh run watch "$run_id" --exit-status
+run_id="$(cap gh run list --workflow="$WORKFLOW" --branch "$branch" --limit 1 --json databaseId -q '.[0].databaseId')"
+run gh run watch "$run_id" --exit-status
 
 # --- 4. download ---
-gh run download "$run_id" --name "$ARTIFACT" --dir "$out"
+run gh run download "$run_id" --name "$ARTIFACT" --dir "$out"
 echo "Done. AltTabDebug.zip in $out/  (unzip -> open the .pkg installer; first run: 'Open Anyway')"
